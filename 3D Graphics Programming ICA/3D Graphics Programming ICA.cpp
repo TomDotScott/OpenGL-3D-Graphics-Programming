@@ -1,20 +1,79 @@
-// 3D Graphics Programming ICA.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
+#include <gl/glew.h>
+#include <GLFW/glfw3.h>
 #include <iostream>
+#include "Constants.h"
+
+void on_frame_buffer_resize_callback(GLFWwindow* window, const int frameBufferWidth, const int frameBufferHeight)
+{
+	glViewport(0, 0, frameBufferWidth, frameBufferHeight);
+}
+
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	// Initialise GLFW
+	glfwInit();
+
+	// CREATE THE WINDOW
+	int frameBufferWidth{ 0 };
+	int frameBufferHeight{ 0 };
+	
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+	
+	GLFWwindow* window = glfwCreateWindow(constants::k_screenWidth, constants::k_screenHeight, "3D Graphics Programming ICA 2", nullptr, nullptr);
+
+	// Make sure the viewport changes to fit the newly resized window
+	glfwSetFramebufferSizeCallback(window, on_frame_buffer_resize_callback);
+	
+	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+	// the viewport is the area of the window that can be rendered to
+	// it's the "canvas size" of the render
+	glViewport(0, 0, frameBufferWidth, frameBufferHeight); 
+
+	// Sets the window up for being rendered to
+	glfwMakeContextCurrent(window);
+
+	// Initialise GLEW with the window and OpenGL context
+	glewExperimental = GL_FALSE;
+
+	// check for errors
+	if(glewInit() != GLEW_OK)
+	{
+		std::cout << "GLEW initialisation failed" << std::endl;
+		glfwTerminate();
+	}
+
+	// The program loop
+	while(!glfwWindowShouldClose(window))
+	{
+		// HANDLE INPUT
+
+		// PollEvents() allows for the cursor to interact with the
+		// newly created window, as well as handling other events
+		// in the event queue
+		glfwPollEvents();
+		
+		// HANDLE UPDATING THE SCENE
+
+		// CLEAR THE SCREEN TO COLOUR
+		
+		// REMEMBER : OpenGL colours are in the range 0 - 1
+		glClearColor(0.f, 0.f, 0.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		// HANDLE DRAWING TO THE SCREEN
+		
+		// AFTER DRAWING....
+		// swapping buffers allows the images to be shown to the user
+		glfwSwapBuffers(window); 
+		glFlush();
+	}
+
+
+	glfwTerminate();
+	
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
