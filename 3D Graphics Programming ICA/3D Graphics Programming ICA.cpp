@@ -2,12 +2,134 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Constants.h"
+#include <fstream>
+#include <string>
 
 void on_frame_buffer_resize_callback(GLFWwindow* window, const int frameBufferWidth, const int frameBufferHeight)
 {
 	glViewport(0, 0, frameBufferWidth, frameBufferHeight);
 }
 
+bool load_shaders(GLuint& program)
+{
+	char infoLog[512];
+	
+	std::string temp;
+	std::string source;
+
+	std::ifstream inFile;
+
+	// Open the vertex shader
+	inFile.open("vertex_core.glsl");
+
+	// Check for errors
+	if(!inFile.is_open())
+	{
+		std::cout << "Failed to open the vertex shader" << std::endl;
+		return false;
+	}else
+	{
+		while(std::getline(inFile, temp))
+		{
+			source += temp + "\n";
+		}
+	}
+
+	inFile.close();
+
+	// Set up and compile the shader from the 
+	// vertex shader source file
+	const GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	const GLchar* vertexShaderSource = source.c_str();
+
+	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+	glCompileShader(vertexShader);
+
+	// Check for errors during compilation of the shader
+	GLint success;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if(!success)
+	{
+		std::cout << "Failed to compile the vertex shader" << std::endl;
+		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+
+		std::cout << infoLog << std::endl;
+		
+		return false;
+	}
+
+	// Open the fragment shader
+	temp = "";
+	source = "";
+
+	// Open the vertex shader
+	inFile.open("fragment_core.glsl");
+
+	// Check for errors
+	if (!inFile.is_open())
+	{
+		std::cout << "Failed to open the fragment shader" << std::endl;
+		return false;
+	} else
+	{
+		while (std::getline(inFile, temp))
+		{
+			source += temp + "\n";
+		}
+	}
+
+	inFile.close();
+
+	// Set up and compile the shader from the 
+	// fragment shader source file
+	const GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	const GLchar * fragmentShaderSource = source.c_str();
+
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+	glCompileShader(fragmentShader);
+
+	// Check for errors during compilation of the shader
+	success = 0;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		std::cout << "Failed to compile the fragment shader" << std::endl;
+		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+
+		std::cout << infoLog << std::endl;
+
+		return false;
+	}
+
+	// Set up the program
+	program = glCreateProgram();
+
+	// Attach and link the shaders to the program
+	glAttachShader(program, vertexShader);
+	glAttachShader(program, fragmentShader);
+
+	glLinkProgram(program);
+
+	// Check for any errors
+	glGetProgramiv(program, GL_LINK_STATUS, &success);
+	
+	if(!success)
+	{
+		std::cout << "Failed to link the shaders to the program" << std::endl;
+		glGetProgramInfoLog(vertexShader, 512, nullptr, infoLog);
+
+		std::cout << infoLog << std::endl;
+
+		return false;
+	}
+
+
+	// Clean up 
+	glUseProgram(0);
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+	return true;
+}
 
 int main()
 {
@@ -47,6 +169,14 @@ int main()
 		glfwTerminate();
 	}
 
+	// Initialise the shader program
+	GLuint coreProgram;
+	
+	if(!load_shaders(coreProgram))
+	{
+		glfwTerminate();
+	}
+
 	// The program loop
 	while(!glfwWindowShouldClose(window))
 	{
@@ -73,7 +203,14 @@ int main()
 		glFlush();
 	}
 
-
+	// At the end of the program
+	glfwDestroyWindow(window);
 	glfwTerminate();
-	
+
+	// Delete the openGL program
+	glDeleteProgram(coreProgram);
+
+	// Delete the VAOs and Buffers
+
+	return 0;	
 }
