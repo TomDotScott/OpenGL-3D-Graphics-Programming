@@ -4,10 +4,11 @@
 #include "Constants.h"
 #include <fstream>
 #include <string>
+#include <glm/glm.hpp>
 
 void input(GLFWwindow* window)
 {
-	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
@@ -22,7 +23,7 @@ void on_frame_buffer_resize_callback(GLFWwindow* window, const int frameBufferWi
 bool load_shaders(GLuint& program)
 {
 	char infoLog[512];
-	
+
 	std::string temp;
 	std::string source;
 
@@ -32,13 +33,13 @@ bool load_shaders(GLuint& program)
 	inFile.open("vertex_core.glsl");
 
 	// Check for errors
-	if(!inFile.is_open())
+	if (!inFile.is_open())
 	{
 		std::cout << "Failed to open the vertex shader" << std::endl;
 		return false;
-	}else
+	} else
 	{
-		while(std::getline(inFile, temp))
+		while (std::getline(inFile, temp))
 		{
 			source += temp + "\n";
 		}
@@ -57,13 +58,13 @@ bool load_shaders(GLuint& program)
 	// Check for errors during compilation of the shader
 	GLint success;
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if(!success)
+	if (!success)
 	{
 		std::cout << "Failed to compile the vertex shader" << std::endl;
 		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
 
 		std::cout << infoLog << std::endl;
-		
+
 		return false;
 	}
 
@@ -92,7 +93,7 @@ bool load_shaders(GLuint& program)
 	// Set up and compile the shader from the 
 	// fragment shader source file
 	const GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	const GLchar * fragmentShaderSource = source.c_str();
+	const GLchar* fragmentShaderSource = source.c_str();
 
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 	glCompileShader(fragmentShader);
@@ -121,8 +122,8 @@ bool load_shaders(GLuint& program)
 
 	// Check for any errors
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
-	
-	if(!success)
+
+	if (!success)
 	{
 		std::cout << "Failed to link the shaders to the program" << std::endl;
 		glGetProgramInfoLog(vertexShader, 512, nullptr, infoLog);
@@ -140,6 +141,14 @@ bool load_shaders(GLuint& program)
 	return true;
 }
 
+struct Vertex
+{
+	Vertex(const glm::vec3 pos, const glm::vec3 col, const glm::vec2 uvs) : m_position(pos), m_colour(col), m_texcoord(uvs) {}
+	glm::vec3 m_position;
+	glm::vec3 m_colour;
+	glm::vec2 m_texcoord;
+};
+
 int main()
 {
 	// Initialise GLFW
@@ -148,22 +157,22 @@ int main()
 	// CREATE THE WINDOW
 	int frameBufferWidth{ 0 };
 	int frameBufferHeight{ 0 };
-	
+
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	
+
 	GLFWwindow* window = glfwCreateWindow(constants::k_screenWidth, constants::k_screenHeight, "3D Graphics Programming ICA 2", nullptr, nullptr);
 
 	// Make sure the viewport changes to fit the newly resized window
 	glfwSetFramebufferSizeCallback(window, on_frame_buffer_resize_callback);
-	
+
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	// the viewport is the area of the window that can be rendered to
 	// it's the "canvas size" of the render
-	glViewport(0, 0, frameBufferWidth, frameBufferHeight); 
+	glViewport(0, 0, frameBufferWidth, frameBufferHeight);
 
 	// Sets the window up for being rendered to
 	glfwMakeContextCurrent(window);
@@ -172,7 +181,7 @@ int main()
 	glewExperimental = GL_FALSE;
 
 	// check for errors
-	if(glewInit() != GLEW_OK)
+	if (glewInit() != GLEW_OK)
 	{
 		std::cout << "GLEW initialisation failed" << std::endl;
 		glfwTerminate();
@@ -185,10 +194,10 @@ int main()
 
 	// Only draws faces that can be seen
 	glEnable(GL_CULL_FACE);
-	
+
 	// GL_BACK means the back of the triangles
 	glCullFace(GL_BACK);
-	
+
 	// The front faces are always read Counter-Clockwise
 	// if vertices are Clockwise, OpenGL knows not to draw them
 	glFrontFace(GL_CCW);
@@ -196,19 +205,83 @@ int main()
 	// Allows for the blending of colours
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Initialise the shader program
 	GLuint coreProgram;
-	
-	if(!load_shaders(coreProgram))
+
+	if (!load_shaders(coreProgram))
 	{
 		glfwTerminate();
 	}
 
+
+	// Basic triangle
+	Vertex vertices[]
+	{
+		{ glm::vec3(0.f, 0.5f, 0.f),      glm::vec3(1.f, 0.f, 0.f),     glm::vec2(0.f, 0.f)},
+		{ glm::vec3(-0.5f, -0.5f, 0.f),   glm::vec3(0.f, 1.f, 0.f),     glm::vec2(0.f, 0.f)},
+		{ glm::vec3(0.5f, -0.5f, 0.f),    glm::vec3(0.f, 0.f, 1.f),     glm::vec2(0.f, 0.f)}
+	};
+
+	unsigned numOfVertices = sizeof(vertices) / sizeof(Vertex);
+
+	// Set up the indices to draw anticlockwise
+	// The numbers refer to the indexes of the
+	// vertices array
+	GLuint indices[]
+	{
+		0, 1, 2,
+		0, 2, 3
+	};
+
+	unsigned numOfIndices = sizeof(indices) / sizeof(GLuint);
+
+	// Pass the triangle information into the shaders
+	// We want to generate the VAO, VBO and EBO before the main program
+	// since sending information from the CPU to the GPU is intensive
+	// and very slow
+	//
+	//
+	// Set up VAO, VBO and EBO
+	// Generate and bind the VAO 
+	GLuint vertexArrayObject;
+	glCreateVertexArrays(1, &vertexArrayObject);
+	glBindVertexArray(vertexArrayObject);
+
+	// Generate and bind the VBO
+	GLuint vertexBufferObject;
+	glGenBuffers(1, &vertexBufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+	// send the vertex data to the VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// Generate and bind the EBO
+	GLuint elementBufferObject;
+	glGenBuffers(1, &elementBufferObject);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
+	// Send the indices data to the EBO
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// Set up and enable the vertex attribute pointers (input assembly)
+	// Position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, m_position)));
+	glEnableVertexAttribArray(0);
+
+	// Colour
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, m_colour)));
+	glEnableVertexAttribArray(1);
+
+	// UVs (texcoords)
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, m_texcoord)));
+	glEnableVertexAttribArray(2);
+
+	// Bind VAO 0
+	// glBindVertexArray(0);
+
 	// The program loop
-	while(!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(window))
 	{
 		// HANDLE INPUT
 
@@ -218,20 +291,30 @@ int main()
 		glfwPollEvents();
 
 		input(window);
-		
+
 		// HANDLE UPDATING THE SCENE
 
 		// CLEAR THE SCREEN TO COLOUR
-		
+
 		// REMEMBER : OpenGL colours are in the range 0 - 1
 		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		// HANDLE DRAWING TO THE SCREEN
-		
+		// Use a program
+		glUseProgram(coreProgram);
+
+		// Bind the vertex array objects
+		glBindVertexArray(vertexArrayObject);
+
+		// Draw to the screen
+		glDrawElements(GL_TRIANGLES, numOfIndices, GL_UNSIGNED_INT, 0);
+
+
+
 		// AFTER DRAWING....
 		// swapping buffers allows the images to be shown to the user
-		glfwSwapBuffers(window); 
+		glfwSwapBuffers(window);
 		glFlush();
 	}
 
@@ -244,5 +327,5 @@ int main()
 
 	// Delete the VAOs and Buffers
 
-	return 0;	
+	return 0;
 }
