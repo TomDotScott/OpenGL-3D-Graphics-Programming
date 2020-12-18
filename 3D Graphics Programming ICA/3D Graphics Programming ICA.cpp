@@ -5,6 +5,15 @@
 #include <fstream>
 #include <string>
 
+void input(GLFWwindow* window)
+{
+	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(window, GLFW_TRUE);
+	}
+}
+
+
 void on_frame_buffer_resize_callback(GLFWwindow* window, const int frameBufferWidth, const int frameBufferHeight)
 {
 	glViewport(0, 0, frameBufferWidth, frameBufferHeight);
@@ -169,6 +178,27 @@ int main()
 		glfwTerminate();
 	}
 
+	// The OpenGL Options
+
+	// Allows us to use the Z Axis
+	glEnable(GL_DEPTH_TEST);
+
+	// Only draws faces that can be seen
+	glEnable(GL_CULL_FACE);
+	
+	// GL_BACK means the back of the triangles
+	glCullFace(GL_BACK);
+	
+	// The front faces are always read Counter-Clockwise
+	// if vertices are Clockwise, OpenGL knows not to draw them
+	glFrontFace(GL_CCW);
+
+	// Allows for the blending of colours
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 	// Initialise the shader program
 	GLuint coreProgram;
 	
@@ -186,6 +216,8 @@ int main()
 		// newly created window, as well as handling other events
 		// in the event queue
 		glfwPollEvents();
+
+		input(window);
 		
 		// HANDLE UPDATING THE SCENE
 
