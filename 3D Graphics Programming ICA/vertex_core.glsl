@@ -12,7 +12,7 @@ void main()
 {
 	varying_position = vertex_position;
 	varying_colour = vertex_colour;
-	varying_texcoord = varying_texcoord;
+	varying_texcoord = vec2(vertex_texcoord.x, vertex_texcoord.y * -1); // textures are flipped by default. Multiply the y by -1 to fix 
 
 	gl_Position = vec4(vertex_position, 1.f);
 }

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include "Constants.h"
+#include <SOIL2/SOIL2.h>
 
 void input(GLFWwindow* window)
 {
@@ -219,14 +220,10 @@ int main()
 	// Basic triangle
 	Vertex vertices[]
 	{
-		{ glm::vec3(-0.5f, 0.5f, 0.f),    glm::vec3(1.f, 0.f, 0.f),     glm::vec2(0.f, 0.f)},
+		{ glm::vec3(-0.5f, 0.5f, 0.f),    glm::vec3(1.f, 0.f, 0.f),     glm::vec2(0.f, 1.f)},
 		{ glm::vec3(-0.5f, -0.5f, 0.f),   glm::vec3(0.f, 1.f, 0.f),     glm::vec2(0.f, 0.f)},
-		{ glm::vec3(0.5f, -0.5f, 0.f),    glm::vec3(0.f, 0.f, 1.f),     glm::vec2(0.f, 0.f)},
-
-		/*{ glm::vec3(-0.5f, 0.5f, 0.f),    glm::vec3(1.f, 0.f, 0.f),     glm::vec2(0.f, 0.f) },
-		{ glm::vec3(0.5f, -0.5f, 0.f),    glm::vec3(0.f, 0.f, 1.f),     glm::vec2(0.f, 0.f)},*/
-		
-		{ glm::vec3(0.5f, 0.5f, 0.f),     glm::vec3(1.f, 1.f, 0.f),     glm::vec2(0.f, 0.f)}
+		{ glm::vec3(0.5f, -0.5f, 0.f),    glm::vec3(0.f, 0.f, 1.f),     glm::vec2(1.f, 0.f)},
+		{ glm::vec3(0.5f, 0.5f, 0.f),     glm::vec3(1.f, 1.f, 0.f),     glm::vec2(1.f, 1.f)}
 	};
 
 	unsigned numOfVertices = sizeof(vertices) / sizeof(Vertex);
@@ -236,9 +233,6 @@ int main()
 	// vertices array
 	GLuint indices[]
 	{
-		//0, 1, 2, // triangle 1
-		//3, 4, 5  // triangle 2
-		//
 		0, 1, 2,
 		0, 2, 3
 	};
@@ -285,8 +279,42 @@ int main()
 	glEnableVertexAttribArray(2);
 
 	// Bind VAO 0
-	// glBindVertexArray(0);
+	glBindVertexArray(0);
 
+	// Initialise texture
+	// Create texture id
+	GLuint texture0;
+
+	// Load the image
+	int textureWidth = 0;
+	int textureHeight = 0;
+	unsigned char* image = SOIL_load_image("Data/alien.png", &textureWidth, &textureHeight, nullptr, SOIL_LOAD_RGBA);
+	
+	glGenTextures(1, &texture0);
+	glBindTexture(GL_TEXTURE_2D, texture0);
+	
+	// Configure options for the texture
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Repeats the image across the x axis
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Repeats the image across the y axis
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); // as the camera gets closer
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // as the camera gets further away
+	
+	
+	// Check if the image loaded correctly
+	if(!image)
+	{
+		std::cout << "Error loading image" << std::endl;
+	}else
+	{
+		// Create an OpenGL image from the pixel data loaded through SOIL
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	SOIL_free_image_data(image);
+	
 	// The program loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -311,6 +339,14 @@ int main()
 		// Use a program
 		glUseProgram(coreProgram);
 
+		// Update the uniforms
+		glUniform1i(glGetUniformLocation(coreProgram, "texture0"), 0); // setting to 0 to bind the current texture to texture location 0
+		
+		// Activate the texture
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture0);
+
+		
 		// Bind the vertex array objects
 		glBindVertexArray(vertexArrayObject);
 
@@ -324,6 +360,12 @@ int main()
 		// swapping buffers allows the images to be shown to the user
 		glfwSwapBuffers(window);
 		glFlush();
+
+		// Reset the bindings
+		glBindVertexArray(0);
+		glUseProgram(0);
+		glActiveTexture(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	// At the end of the program
