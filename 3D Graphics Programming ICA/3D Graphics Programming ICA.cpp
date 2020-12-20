@@ -316,8 +316,6 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	SOIL_free_image_data(image);
 
-
-
 	// IMAGE ONE
 	GLuint texture1;
 	textureWidth = 0;
@@ -347,16 +345,29 @@ int main()
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
 
-	// Send the model matrix to the shaders
+	// Camera vectors
+	const glm::vec3 worldUpVector = glm::vec3(0.f, 1.f, 0.f);
+	glm::vec3 camPosition(0.f, 0.f, 2.f);
+	glm::vec3 camFrontVector = glm::vec3(0.f, 0.f, -1.f);
+	
+	glm::mat4 viewMatrix(1.f);
+
+	viewMatrix = glm::lookAt(camPosition, camPosition + camFrontVector, worldUpVector);
+
+	const float fieldOfView = 90.f;
+	const float nearPlane = 0.1f;
+	const float farPlane = 5000.f;
+	
+	glm::mat4 projectionMatrix(1.f);
+
+	projectionMatrix = glm::perspective(glm::radians(fieldOfView), static_cast<float>(frameBufferWidth) / static_cast<float>(frameBufferHeight), nearPlane, farPlane);
+	
+	// Send the matrices to the shaders
 	glUseProgram(coreProgram);
 	glUniformMatrix4fv(glGetUniformLocation(coreProgram, "model_matrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(coreProgram, "view_matrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(coreProgram, "projection_matrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 	glUseProgram(0);
-
-
-	float rotation = 0.f;
-	float scale = 0.f;
-	float translation = 0.f;
-
 	
 	// The program loop
 	while (!glfwWindowShouldClose(window))
@@ -390,9 +401,19 @@ int main()
 		//modelMatrix = glm::translate(modelMatrix, glm::vec3(tan(translation)));
 		modelMatrix = glm::rotate(modelMatrix, glm::radians(1.f), glm::vec3(1.f, 1.f, 1.f));
 		modelMatrix = glm::scale(modelMatrix, glm::vec3(1));
-
 		
 		glUniformMatrix4fv(glGetUniformLocation(coreProgram, "model_matrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+		glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+		// Reset the projection matrix
+		projectionMatrix = glm::mat4(1.f);
+		// Calculate the new projection matrix
+		projectionMatrix = glm::perspective(glm::radians(fieldOfView), static_cast<float>(frameBufferWidth) / static_cast<float>(frameBufferHeight), nearPlane, farPlane);
+		glUniformMatrix4fv(glGetUniformLocation(coreProgram, "projection_matrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+		
+		glUniformMatrix4fv(glGetUniformLocation(coreProgram, "view_matrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
 		
 		// Activate the textures
 		glActiveTexture(GL_TEXTURE0);
@@ -420,10 +441,6 @@ int main()
 		glUseProgram(0);
 		glActiveTexture(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-
-		translation += 0.01f;
-		rotation += 0.1f;
-		scale += 0.001f;		
 	}
 
 	// At the end of the program
