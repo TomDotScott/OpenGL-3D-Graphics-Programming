@@ -1,10 +1,10 @@
+#include <fstream>
 #include <gl/glew.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
-#include "Constants.h"
-#include <fstream>
-#include <string>
 #include <glm/glm.hpp>
+#include <iostream>
+#include <string>
+#include "Constants.h"
 
 void input(GLFWwindow* window)
 {
@@ -13,7 +13,6 @@ void input(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
 }
-
 
 void on_frame_buffer_resize_callback(GLFWwindow* window, const int frameBufferWidth, const int frameBufferHeight)
 {
@@ -220,9 +219,14 @@ int main()
 	// Basic triangle
 	Vertex vertices[]
 	{
-		{ glm::vec3(0.f, 0.5f, 0.f),      glm::vec3(1.f, 0.f, 0.f),     glm::vec2(0.f, 0.f)},
+		{ glm::vec3(-0.5f, 0.5f, 0.f),    glm::vec3(1.f, 0.f, 0.f),     glm::vec2(0.f, 0.f)},
 		{ glm::vec3(-0.5f, -0.5f, 0.f),   glm::vec3(0.f, 1.f, 0.f),     glm::vec2(0.f, 0.f)},
-		{ glm::vec3(0.5f, -0.5f, 0.f),    glm::vec3(0.f, 0.f, 1.f),     glm::vec2(0.f, 0.f)}
+		{ glm::vec3(0.5f, -0.5f, 0.f),    glm::vec3(0.f, 0.f, 1.f),     glm::vec2(0.f, 0.f)},
+
+		/*{ glm::vec3(-0.5f, 0.5f, 0.f),    glm::vec3(1.f, 0.f, 0.f),     glm::vec2(0.f, 0.f) },
+		{ glm::vec3(0.5f, -0.5f, 0.f),    glm::vec3(0.f, 0.f, 1.f),     glm::vec2(0.f, 0.f)},*/
+		
+		{ glm::vec3(0.5f, 0.5f, 0.f),     glm::vec3(1.f, 1.f, 0.f),     glm::vec2(0.f, 0.f)}
 	};
 
 	unsigned numOfVertices = sizeof(vertices) / sizeof(Vertex);
@@ -232,6 +236,9 @@ int main()
 	// vertices array
 	GLuint indices[]
 	{
+		//0, 1, 2, // triangle 1
+		//3, 4, 5  // triangle 2
+		//
 		0, 1, 2,
 		0, 2, 3
 	};
@@ -308,7 +315,8 @@ int main()
 		glBindVertexArray(vertexArrayObject);
 
 		// Draw to the screen
-		glDrawElements(GL_TRIANGLES, numOfIndices, GL_UNSIGNED_INT, 0);
+		//glDrawArrays(GL_TRIANGLES, 0, numOfIndices); // Draw arrays draws every point from our vertex array
+		glDrawElements(GL_TRIANGLES, numOfIndices, GL_UNSIGNED_INT, 0); // Draw elements draws every point from our elements array
 
 
 
