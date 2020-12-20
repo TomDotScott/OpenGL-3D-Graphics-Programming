@@ -2,6 +2,8 @@
 #include <gl/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <string>
 #include "Constants.h"
@@ -339,6 +341,22 @@ int main()
 	glActiveTexture(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	SOIL_free_image_data(image);
+
+	glm::mat4 modelMatrix(1.f);
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.f));
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
+
+	// Send the model matrix to the shaders
+	glUseProgram(coreProgram);
+	glUniformMatrix4fv(glGetUniformLocation(coreProgram, "model_matrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+	glUseProgram(0);
+
+
+	float rotation = 0.f;
+	float scale = 0.f;
+	float translation = 0.f;
+
 	
 	// The program loop
 	while (!glfwWindowShouldClose(window))
@@ -367,6 +385,14 @@ int main()
 		// Update the uniforms
 		glUniform1i(glGetUniformLocation(coreProgram, "texture0"), 0); // setting to 0 to bind the current texture to texture location 0
 		glUniform1i(glGetUniformLocation(coreProgram, "texture1"), 1); // setting to 1 to bind the current texture to texture location 1
+
+		// Move, rotate and scale the model matrix
+		//modelMatrix = glm::translate(modelMatrix, glm::vec3(tan(translation)));
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(1.f), glm::vec3(1.f, 1.f, 1.f));
+		modelMatrix = glm::scale(modelMatrix, glm::vec3(1));
+
+		
+		glUniformMatrix4fv(glGetUniformLocation(coreProgram, "model_matrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 		
 		// Activate the textures
 		glActiveTexture(GL_TEXTURE0);
@@ -394,6 +420,10 @@ int main()
 		glUseProgram(0);
 		glActiveTexture(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		translation += 0.01f;
+		rotation += 0.1f;
+		scale += 0.001f;		
 	}
 
 	// At the end of the program

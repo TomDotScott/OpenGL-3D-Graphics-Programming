@@ -13,5 +13,5 @@ uniform sampler2D texture1;
 void main()
 {
 	//fragment_colour = vec4(varying_colour, 1.f);
-	fragment_colour = texture(texture1, varying_texcoord) - texture(texture0, varying_texcoord);
+	fragment_colour = texture(texture0, varying_texcoord) * texture(texture1, varying_texcoord);
 }
