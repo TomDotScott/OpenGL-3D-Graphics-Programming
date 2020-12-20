@@ -285,7 +285,7 @@ int main()
 	// Create texture id
 	GLuint texture0;
 
-	// Load the image
+	// IMAGE ZERO
 	int textureWidth = 0;
 	int textureHeight = 0;
 	unsigned char* image = SOIL_load_image("Data/alien.png", &textureWidth, &textureHeight, nullptr, SOIL_LOAD_RGBA);
@@ -299,12 +299,37 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); // as the camera gets closer
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // as the camera gets further away
 	
-	
 	// Check if the image loaded correctly
 	if(!image)
 	{
 		std::cout << "Error loading image" << std::endl;
 	}else
+	{
+		// Create an OpenGL image from the pixel data loaded through SOIL
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	SOIL_free_image_data(image);
+
+
+
+	// IMAGE ONE
+	GLuint texture1;
+	textureWidth = 0;
+	textureHeight = 0;
+	image = SOIL_load_image("Data/box.png", &textureWidth, &textureHeight, nullptr, SOIL_LOAD_RGBA);
+
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+
+	// Check if the image loaded correctly
+	if (!image)
+	{
+		std::cout << "Error loading image" << std::endl;
+	} else
 	{
 		// Create an OpenGL image from the pixel data loaded through SOIL
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
@@ -341,10 +366,14 @@ int main()
 
 		// Update the uniforms
 		glUniform1i(glGetUniformLocation(coreProgram, "texture0"), 0); // setting to 0 to bind the current texture to texture location 0
+		glUniform1i(glGetUniformLocation(coreProgram, "texture1"), 1); // setting to 1 to bind the current texture to texture location 1
 		
-		// Activate the texture
+		// Activate the textures
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture0);
+		
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture1);
 
 		
 		// Bind the vertex array objects
@@ -354,8 +383,7 @@ int main()
 		//glDrawArrays(GL_TRIANGLES, 0, numOfIndices); // Draw arrays draws every point from our vertex array
 		glDrawElements(GL_TRIANGLES, numOfIndices, GL_UNSIGNED_INT, 0); // Draw elements draws every point from our elements array
 
-
-
+		
 		// AFTER DRAWING....
 		// swapping buffers allows the images to be shown to the user
 		glfwSwapBuffers(window);
