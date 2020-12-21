@@ -17,6 +17,33 @@ void input(GLFWwindow* window)
 	}
 }
 
+void input(GLFWwindow* window, glm::vec3& position, glm::vec3& rotation, glm::vec3& scale)
+{
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		position.z -= 0.01f;
+	}else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		position.z += 0.01f;
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		position.x -= 0.01f;
+	}else if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		position.x += 0.01f;
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		rotation.z -= 2.f;
+	}else if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		rotation.z += 2.f;
+	}
+}
+
 void on_frame_buffer_resize_callback(GLFWwindow* window, const int frameBufferWidth, const int frameBufferHeight)
 {
 	glViewport(0, 0, frameBufferWidth, frameBufferHeight);
@@ -340,27 +367,37 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	SOIL_free_image_data(image);
 
-	glm::mat4 modelMatrix(1.f);
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(0.f));
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
-
 	// Camera vectors
 	const glm::vec3 worldUpVector = glm::vec3(0.f, 1.f, 0.f);
 	glm::vec3 camPosition(0.f, 0.f, 2.f);
 	glm::vec3 camFrontVector = glm::vec3(0.f, 0.f, -1.f);
-	
-	glm::mat4 viewMatrix(1.f);
-
-	viewMatrix = glm::lookAt(camPosition, camPosition + camFrontVector, worldUpVector);
 
 	const float fieldOfView = 90.f;
 	const float nearPlane = 0.1f;
 	const float farPlane = 5000.f;
+
+	// Object Vectors
+	glm::vec3 position(0.f);
+	glm::vec3 rotation(0.f);
+	glm::vec3 scale(1.f);
+
+	// Set up the matrices
+	glm::mat4 viewMatrix(1.f);
+
+	viewMatrix = glm::lookAt(camPosition, camPosition + camFrontVector, worldUpVector);
 	
 	glm::mat4 projectionMatrix(1.f);
 
 	projectionMatrix = glm::perspective(glm::radians(fieldOfView), static_cast<float>(frameBufferWidth) / static_cast<float>(frameBufferHeight), nearPlane, farPlane);
+
+	glm::mat4 modelMatrix(1.f);
+	modelMatrix = glm::translate(modelMatrix, position);
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+	
+	modelMatrix = glm::scale(modelMatrix, scale);
+
 	
 	// Send the matrices to the shaders
 	glUseProgram(coreProgram);
@@ -373,14 +410,15 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// HANDLE INPUT
-
+				
 		// PollEvents() allows for the cursor to interact with the
 		// newly created window, as well as handling other events
 		// in the event queue
 		glfwPollEvents();
 
 		input(window);
-
+		input(window, position, rotation, scale);
+		
 		// HANDLE UPDATING THE SCENE
 
 		// CLEAR THE SCREEN TO COLOUR
@@ -397,10 +435,15 @@ int main()
 		glUniform1i(glGetUniformLocation(coreProgram, "texture0"), 0); // setting to 0 to bind the current texture to texture location 0
 		glUniform1i(glGetUniformLocation(coreProgram, "texture1"), 1); // setting to 1 to bind the current texture to texture location 1
 
-		// Move, rotate and scale the model matrix
-		//modelMatrix = glm::translate(modelMatrix, glm::vec3(tan(translation)));
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(1.f), glm::vec3(1.f, 1.f, 1.f));
-		modelMatrix = glm::scale(modelMatrix, glm::vec3(1));
+		// Move, rotate and scale the model matrix		
+		modelMatrix = glm::mat4(1.f);
+		
+		modelMatrix = glm::translate(modelMatrix, position);
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+
+		modelMatrix = glm::scale(modelMatrix, scale);
 		
 		glUniformMatrix4fv(glGetUniformLocation(coreProgram, "model_matrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
