@@ -410,7 +410,7 @@ int main()
 	modelMatrix = glm::scale(modelMatrix, scale);
 
 	// Basic Lighting
-	glm::vec3 light_position(0.f, 0.f, 2.f);
+	glm::vec3 lightPosition(0.f, 0.f, 1.f);
 
 	
 	// Send the matrices and lights to the shaders
@@ -419,7 +419,8 @@ int main()
 	glUniformMatrix4fv(glGetUniformLocation(coreProgram, "view_matrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(glGetUniformLocation(coreProgram, "projection_matrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-	glUniform3fv(glGetUniformLocation(coreProgram, "light_position"), 1, glm::value_ptr(light_position));
+	glUniform3fv(glGetUniformLocation(coreProgram, "light_position"), 1, glm::value_ptr(lightPosition));
+	glUniform3fv(glGetUniformLocation(coreProgram, "camera_position"), 1, glm::value_ptr(camPosition));
 
 	glUseProgram(0);
 

@@ -12,6 +12,7 @@ uniform sampler2D texture0;
 uniform sampler2D texture1;
 
 uniform vec3 light_position;
+uniform vec3 camera_position;
 
 void main()
 {
@@ -31,5 +32,12 @@ void main()
 
 	vec3 diffuseFinal = diffuseColour * diffuseAmount; 
 
-	fragment_colour = texture(texture0, varying_texcoord) * vec4(varying_colour, 1.f) * (vec4(ambientLight, 1.f) + vec4(diffuseFinal, 1.f));
+	// Specular lighting
+	vec3 lightToPositionDirectionVector = normalize(light_position - varying_position);
+	vec3 reflectionDirectionVector = normalize(reflect(lightToPositionDirectionVector, normalize(varying_normal)));
+	vec3 positionToViewDirectionVector = normalize(varying_position - camera_position);
+	float specularConstant = pow(max(dot(positionToViewDirectionVector, reflectionDirectionVector), 0), 30);
+	vec3 specularFinal = vec3(1.f, 1.f, 1.f) * specularConstant;
+
+	fragment_colour = texture(texture0, varying_texcoord) * vec4(varying_colour, 1.f) * (vec4(ambientLight, 1.f) + vec4(diffuseFinal, 1.f) + vec4(specularFinal, 1.f));
 }
