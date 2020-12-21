@@ -19,28 +19,28 @@ void input(GLFWwindow* window)
 
 void input(GLFWwindow* window, glm::vec3& position, glm::vec3& rotation, glm::vec3& scale)
 {
-	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		position.z -= 0.01f;
-	}else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	} else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		position.z += 0.01f;
 	}
 
-	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
 		position.x -= 0.01f;
-	}else if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
 		position.x += 0.01f;
 	}
 
-	if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 	{
-		rotation.z -= 2.f;
-	}else if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		rotation.y -= 2.f;
+	} else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	{
-		rotation.z += 2.f;
+		rotation.y += 2.f;
 	}
 }
 
@@ -172,10 +172,17 @@ bool load_shaders(GLuint& program)
 
 struct Vertex
 {
-	Vertex(const glm::vec3 pos, const glm::vec3 col, const glm::vec2 uvs) : m_position(pos), m_colour(col), m_texcoord(uvs) {}
+	Vertex(const glm::vec3& pos, const glm::vec3& col, const glm::vec2& uvs, const glm::vec3& normals) :
+		m_position(pos),
+		m_colour(col),
+		m_texcoord(uvs),
+		m_normal(normals)
+	{
+	}
 	glm::vec3 m_position;
 	glm::vec3 m_colour;
 	glm::vec2 m_texcoord;
+	glm::vec3 m_normal;
 };
 
 int main()
@@ -249,10 +256,10 @@ int main()
 	// Basic triangle
 	Vertex vertices[]
 	{
-		{ glm::vec3(-0.5f, 0.5f, 0.f),    glm::vec3(1.f, 0.f, 0.f),     glm::vec2(0.f, 1.f)},
-		{ glm::vec3(-0.5f, -0.5f, 0.f),   glm::vec3(0.f, 1.f, 0.f),     glm::vec2(0.f, 0.f)},
-		{ glm::vec3(0.5f, -0.5f, 0.f),    glm::vec3(0.f, 0.f, 1.f),     glm::vec2(1.f, 0.f)},
-		{ glm::vec3(0.5f, 0.5f, 0.f),     glm::vec3(1.f, 1.f, 0.f),     glm::vec2(1.f, 1.f)}
+		{ glm::vec3(-0.5f, 0.5f, 0.f),    glm::vec3(1.f, 0.f, 0.f),     glm::vec2(0.f, 1.f), glm::vec3(0.f, 0.f, -1.f)},
+		{ glm::vec3(-0.5f, -0.5f, 0.f),   glm::vec3(0.f, 1.f, 0.f),     glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, -1.f)},
+		{ glm::vec3(0.5f, -0.5f, 0.f),    glm::vec3(0.f, 0.f, 1.f),     glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, -1.f)},
+		{ glm::vec3(0.5f, 0.5f, 0.f),     glm::vec3(1.f, 1.f, 0.f),     glm::vec2(1.f, 1.f), glm::vec3(0.f, 0.f, -1.f)}
 	};
 
 	unsigned numOfVertices = sizeof(vertices) / sizeof(Vertex);
@@ -307,6 +314,10 @@ int main()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, m_texcoord)));
 	glEnableVertexAttribArray(2);
 
+	// Normals
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, m_normal)));
+	glEnableVertexAttribArray(3);
+	
 	// Bind VAO 0
 	glBindVertexArray(0);
 
@@ -318,21 +329,21 @@ int main()
 	int textureWidth = 0;
 	int textureHeight = 0;
 	unsigned char* image = SOIL_load_image("Data/alien.png", &textureWidth, &textureHeight, nullptr, SOIL_LOAD_RGBA);
-	
+
 	glGenTextures(1, &texture0);
 	glBindTexture(GL_TEXTURE_2D, texture0);
-	
+
 	// Configure options for the texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Repeats the image across the x axis
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Repeats the image across the y axis
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); // as the camera gets closer
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // as the camera gets further away
-	
+
 	// Check if the image loaded correctly
-	if(!image)
+	if (!image)
 	{
 		std::cout << "Error loading image" << std::endl;
-	}else
+	} else
 	{
 		// Create an OpenGL image from the pixel data loaded through SOIL
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
@@ -385,7 +396,7 @@ int main()
 	glm::mat4 viewMatrix(1.f);
 
 	viewMatrix = glm::lookAt(camPosition, camPosition + camFrontVector, worldUpVector);
-	
+
 	glm::mat4 projectionMatrix(1.f);
 
 	projectionMatrix = glm::perspective(glm::radians(fieldOfView), static_cast<float>(frameBufferWidth) / static_cast<float>(frameBufferHeight), nearPlane, farPlane);
@@ -395,22 +406,28 @@ int main()
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
-	
+
 	modelMatrix = glm::scale(modelMatrix, scale);
 
+	// Basic Lighting
+	glm::vec3 light_position(0.f, 0.f, 2.f);
+
 	
-	// Send the matrices to the shaders
+	// Send the matrices and lights to the shaders
 	glUseProgram(coreProgram);
 	glUniformMatrix4fv(glGetUniformLocation(coreProgram, "model_matrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 	glUniformMatrix4fv(glGetUniformLocation(coreProgram, "view_matrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(glGetUniformLocation(coreProgram, "projection_matrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+	glUniform3fv(glGetUniformLocation(coreProgram, "light_position"), 1, glm::value_ptr(light_position));
+
 	glUseProgram(0);
-	
+
 	// The program loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// HANDLE INPUT
-				
+
 		// PollEvents() allows for the cursor to interact with the
 		// newly created window, as well as handling other events
 		// in the event queue
@@ -418,7 +435,7 @@ int main()
 
 		input(window);
 		input(window, position, rotation, scale);
-		
+
 		// HANDLE UPDATING THE SCENE
 
 		// CLEAR THE SCREEN TO COLOUR
@@ -437,14 +454,14 @@ int main()
 
 		// Move, rotate and scale the model matrix		
 		modelMatrix = glm::mat4(1.f);
-		
+
 		modelMatrix = glm::translate(modelMatrix, position);
 		modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
 		modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
 		modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
 
 		modelMatrix = glm::scale(modelMatrix, scale);
-		
+
 		glUniformMatrix4fv(glGetUniformLocation(coreProgram, "model_matrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
 		glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
@@ -454,18 +471,18 @@ int main()
 		// Calculate the new projection matrix
 		projectionMatrix = glm::perspective(glm::radians(fieldOfView), static_cast<float>(frameBufferWidth) / static_cast<float>(frameBufferHeight), nearPlane, farPlane);
 		glUniformMatrix4fv(glGetUniformLocation(coreProgram, "projection_matrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-		
+
 		glUniformMatrix4fv(glGetUniformLocation(coreProgram, "view_matrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
-		
+
 		// Activate the textures
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture0);
-		
+
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 
-		
+
 		// Bind the vertex array objects
 		glBindVertexArray(vertexArrayObject);
 
@@ -473,7 +490,7 @@ int main()
 		//glDrawArrays(GL_TRIANGLES, 0, numOfIndices); // Draw arrays draws every point from our vertex array
 		glDrawElements(GL_TRIANGLES, numOfIndices, GL_UNSIGNED_INT, 0); // Draw elements draws every point from our elements array
 
-		
+
 		// AFTER DRAWING....
 		// swapping buffers allows the images to be shown to the user
 		glfwSwapBuffers(window);
