@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Constants.h"
+#include "Material.h"
 #include "Shader.h"
 #include "Texture.h"
 
@@ -86,7 +87,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
 	GLFWwindow* window = glfwCreateWindow(constants::k_screenWidth, constants::k_screenHeight,
-	                                      "3D Graphics Programming ICA 2", nullptr, nullptr);
+	                                      "3D Graphics Programming ICA SCOTT Thomas W9036922", nullptr, nullptr);
 
 	int frameBufferWidth;
 	int frameBufferHeight;
@@ -185,6 +186,15 @@ int main()
 	//TEXTURE 1
 	Texture texture1("Data/box.png", GL_TEXTURE_2D, 1);
 
+	//Material 0
+	Material material0(
+		glm::vec3(1.f),
+		glm::vec3(0.f),
+		glm::vec3(1.f),
+		texture0.GetTextureUnit(),
+		texture1.GetTextureUnit()
+	);
+	
 	//INIT MATRICES
 	glm::vec3 position(0.f);
 	glm::vec3 rotation(0.f);
@@ -247,6 +257,8 @@ int main()
 		coreProgram.Set1I(texture0.GetTextureUnit(), "texture0");
 		coreProgram.Set1I(texture1.GetTextureUnit(), "texture1");
 
+		material0.SendToShader(coreProgram);
+		
 		//Move, rotate and scale
 		modelMatrix = glm::mat4(1.f);
 		modelMatrix = translate(modelMatrix, position);

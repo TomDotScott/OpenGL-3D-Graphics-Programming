@@ -3,11 +3,13 @@
 #include <iostream>
 #include <SOIL2/SOIL2.h>
 
-Texture::Texture(const std::string& fileName, const GLenum type, const GLint textureUnit)
+Texture::Texture(const std::string& fileName, const GLenum type, const GLint textureUnit) :
+	m_ID(0),
+	m_width(0),
+	m_height(0),
+	m_type(type),
+	m_textureUnit(textureUnit)
 {
-	m_type = type;
-	m_textureUnit = textureUnit;
-
 	unsigned char* image = SOIL_load_image(fileName.c_str(), &m_width, &m_height, nullptr, SOIL_LOAD_RGBA);
 
 	glGenTextures(1, &m_ID);
@@ -48,7 +50,8 @@ void Texture::Bind() const
 	glBindTexture(m_type, m_ID);
 }
 
-void Texture::Unbind() const {
+void Texture::Unbind() const
+{
 	glActiveTexture(0);
 	glBindTexture(m_type, 0);
 }
