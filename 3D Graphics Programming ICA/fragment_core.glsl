@@ -20,31 +20,34 @@ uniform Material material;
 uniform vec3 light_position;
 uniform vec3 camera_position;
 
+vec3 calculate_ambient_colour(Material mat)
+{
+	return mat.ambient;
+}
+
+vec3 calculate_diffuse_colour(Material mat, vec3 position, vec3 normal, vec3 lightPos){
+	// Diffuse lighting
+	vec3 positionToLightDirectionVector = normalize(position - lightPos);
+	 // The dot product gives use the the diffuse amount. The dot product goes between -1 and 1, we don't want negatives so we clamp
+	float diffuseAmount = clamp(dot(positionToLightDirectionVector, normal), 0, 1);
+
+	return mat.diffuse * diffuseAmount; 
+}
+
+vec3 calculate_specular_colour(Material mat, vec3 position, vec3 normal, vec3 lightPos, vec3 cameraPos){
+	vec3 lightToPositionDirectionVector = normalize(lightPos - position);
+	vec3 reflectionDirectionVector = normalize(reflect(lightToPositionDirectionVector, normalize(normal)));
+	vec3 positionToViewDirectionVector = normalize(position - cameraPos);
+	float specularConstant = pow(max(dot(positionToViewDirectionVector, reflectionDirectionVector), 0), 30);
+	return material.specular * specularConstant;
+}
+
 void main()
 {
-	// fragment_colour = vec4(varying_colour, 1.f);
-	// fragment_colour = texture(texture0, varying_texcoord) * texture(texture1, varying_texcoord);
-
-	// Ambient lighting 
-	vec3 ambientLight = material.ambient; // Ambient light is the "natural" light of the scene
-
-	// Diffuse lighting
-	vec3 positionToLightDirectionVector = normalize(varying_position - light_position);
-
-	vec3 diffuseColour = vec3(1.f, 1.f, 1.f); // No special colour for the diffuse light
-
-	 // The dot product gives use the the diffuse amount. The dot product goes between -1 and 1, we don't want negatives so we clamp
-	float diffuseAmount = clamp(dot(positionToLightDirectionVector, varying_normal), 0, 1);
-
-	vec3 diffuseFinal = material.diffuse * diffuseAmount; 
-
-	// Specular lighting
-	vec3 lightToPositionDirectionVector = normalize(light_position - varying_position);
-	vec3 reflectionDirectionVector = normalize(reflect(lightToPositionDirectionVector, normalize(varying_normal)));
-	vec3 positionToViewDirectionVector = normalize(varying_position - camera_position);
-	float specularConstant = pow(max(dot(positionToViewDirectionVector, reflectionDirectionVector), 0), 30);
-	vec3 specularFinal = material.specular * specularConstant;
+	vec3 ambientFinal = calculate_ambient_colour(material); // Ambient light is the "natural" light of the scene
+	vec3 diffuseFinal = calculate_diffuse_colour(material, varying_position, varying_normal, light_position);
+	vec3 specularFinal = calculate_specular_colour(material, varying_position, varying_normal, light_position, camera_position);
 
 //	fragment_colour = texture(material.diffuse_tex, varying_texcoord) * vec4(varying_colour, 1.f) * (vec4(ambientLight, 1.f) + vec4(diffuseFinal, 1.f) + vec4(specularFinal, 1.f));
-	fragment_colour = texture(material.diffuse_tex, varying_texcoord) * (vec4(ambientLight, 1.f) + vec4(diffuseFinal, 1.f) + vec4(specularFinal, 1.f));
+	fragment_colour = texture(material.diffuse_tex, varying_texcoord) * (vec4(ambientFinal, 1.f) + vec4(diffuseFinal, 1.f) + vec4(specularFinal, 1.f));
 }
