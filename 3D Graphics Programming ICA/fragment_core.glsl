@@ -27,7 +27,7 @@ vec3 calculate_ambient_colour(Material mat)
 
 vec3 calculate_diffuse_colour(Material mat, vec3 position, vec3 normal, vec3 lightPos){
 	// Diffuse lighting
-	vec3 positionToLightDirectionVector = normalize(position - lightPos);
+	vec3 positionToLightDirectionVector = normalize(lightPos - position);
 	 // The dot product gives use the the diffuse amount. The dot product goes between -1 and 1, we don't want negatives so we clamp
 	float diffuseAmount = clamp(dot(positionToLightDirectionVector, normal), 0, 1);
 
@@ -35,9 +35,9 @@ vec3 calculate_diffuse_colour(Material mat, vec3 position, vec3 normal, vec3 lig
 }
 
 vec3 calculate_specular_colour(Material mat, vec3 position, vec3 normal, vec3 lightPos, vec3 cameraPos){
-	vec3 lightToPositionDirectionVector = normalize(lightPos - position);
+	vec3 lightToPositionDirectionVector = normalize(position - lightPos);
 	vec3 reflectionDirectionVector = normalize(reflect(lightToPositionDirectionVector, normalize(normal)));
-	vec3 positionToViewDirectionVector = normalize(position - cameraPos);
+	vec3 positionToViewDirectionVector = normalize(cameraPos - position);
 	float specularConstant = pow(max(dot(positionToViewDirectionVector, reflectionDirectionVector), 0), 30);
 	return material.specular * specularConstant;
 }
