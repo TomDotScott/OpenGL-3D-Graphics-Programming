@@ -3,6 +3,8 @@
 #include <vector>
 #include <gl/glew.h>
 
+
+#include "Primitives.h"
 #include "Shader.h"
 
 class Mesh
@@ -12,6 +14,8 @@ public:
 		Vertex* vertexArray, const unsigned& numOfVertices,
 		GLuint* indexArray, const unsigned& numOfIndices);
 
+	Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, Primitive& primitive);
+	
 	~Mesh();
 
 	void Update();
@@ -38,6 +42,8 @@ private:
 	glm::mat4 m_modelMatrix;
 
 	void InitialiseBuffers(Vertex* vertexArray, GLuint* indexArray);
+	
+	void InitialiseBuffers(Primitive& primitive);
 
 	void UpdateUniforms(Shader& shader) const;
 

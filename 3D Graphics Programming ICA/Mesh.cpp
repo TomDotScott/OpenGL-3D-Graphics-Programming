@@ -1,7 +1,8 @@
 ﻿#include "Mesh.h"
 
 Mesh::Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, Vertex* vertexArray,
-	const unsigned& numOfVertices, GLuint* indexArray, const unsigned& numOfIndices) :
+	const unsigned& numOfVertices, GLuint* indexArray, const unsigned& numOfIndices)
+:
 	m_numVertices(numOfVertices),
 	m_numIndices(numOfIndices),
 	m_vao(0),
@@ -13,6 +14,22 @@ Mesh::Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3
 	m_modelMatrix(glm::mat4(1.f))
 {
 	InitialiseBuffers(vertexArray, indexArray);
+}
+
+Mesh::Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, 
+	Primitive& primitive)
+:
+	m_numVertices(primitive.GetVertices().size()),
+	m_numIndices(primitive.GetIndices().size()),
+	m_vao(0),
+	m_vbo(0),
+	m_ebo(0),
+	m_position(position),
+	m_rotation(rotation),
+	m_scale(scale),
+	m_modelMatrix(glm::mat4(1.f))
+{
+	InitialiseBuffers(primitive);
 }
 
 Mesh::~Mesh()
@@ -83,6 +100,47 @@ void Mesh::InitialiseBuffers(Vertex* vertexArray, GLuint* indexArray)
 	glGenBuffers(1, &m_ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_numIndices * sizeof(GLuint), indexArray, GL_STATIC_DRAW);
+
+	//SET VERTEXATTRIBPOINTERS AND ENABLE (INPUT ASSEMBLY)
+	//Position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		reinterpret_cast<GLvoid*>(offsetof(Vertex, m_position)));
+	glEnableVertexAttribArray(0);
+	//Color
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		reinterpret_cast<GLvoid*>(offsetof(Vertex, m_colour)));
+	glEnableVertexAttribArray(1);
+	//Texcoord
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		reinterpret_cast<GLvoid*>(offsetof(Vertex, m_texcoord)));
+	glEnableVertexAttribArray(2);
+	//Normal
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		reinterpret_cast<GLvoid*>(offsetof(Vertex, m_normal)));
+	glEnableVertexAttribArray(3);
+
+	//BIND VAO 0
+	glBindVertexArray(0);
+}
+
+void Mesh::InitialiseBuffers(Primitive& primitive)
+{
+	m_numVertices = primitive.GetVertices().size();
+	m_numIndices = primitive.GetIndices().size();
+
+	//VAO, VBO, EBO
+	glCreateVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
+
+	//GEN VBO AND BIND AND SEND DATA
+	glGenBuffers(1, &m_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_numVertices * sizeof(Vertex), primitive.GetVertices().data(), GL_STATIC_DRAW);
+
+	//GEN EBO AND BIND AND SEND DATA
+	glGenBuffers(1, &m_ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_numIndices * sizeof(GLuint), primitive.GetIndices().data(), GL_STATIC_DRAW);
 
 	//SET VERTEXATTRIBPOINTERS AND ENABLE (INPUT ASSEMBLY)
 	//Position

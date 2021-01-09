@@ -108,23 +108,6 @@ int main()
 	Shader coreProgram("vertex_core.glsl", "fragment_core.glsl");
 
 	//MODEL
-	Vertex vertices[] =
-	{
-		//Position								//Color							//Texcoords					//Normals
-		{glm::vec3(-0.5f, 0.5f, 0.f),  glm::vec3(1.f, 0.f, 0.f), glm::vec2(0.f, 1.f), glm::vec3(0.f, 0.f, 1.f)},
-		{glm::vec3(-0.5f, -0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, 1.f)},
-		{glm::vec3(0.5f, -0.5f, 0.f),  glm::vec3(0.f, 0.f, 1.f), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)},
-		{glm::vec3(0.5f, 0.5f, 0.f),   glm::vec3(1.f, 1.f, 0.f), glm::vec2(1.f, 1.f), glm::vec3(0.f, 0.f, 1.f)}
-	};
-
-	unsigned numOfVertices = sizeof(vertices) / sizeof(Vertex);
-
-	GLuint indices[] =
-	{
-		0, 1, 2, //Triangle 1
-		0, 2, 3  //Triangle 2
-	};
-	unsigned numOfIndices = sizeof(indices) / sizeof(GLuint);
 	
 	//TEXTURE INIT
 
@@ -147,8 +130,13 @@ int main()
 	glm::vec3 position(0.f);
 	glm::vec3 rotation(0.f);
 	glm::vec3 scale(1.f);
-
-	Mesh test(position, rotation,scale, vertices, numOfVertices, indices, numOfIndices);
+	Quad quad;
+	
+	Mesh test(position, 
+		rotation,
+		scale, 
+		quad
+	);
 
 
 	glm::vec3 camPosition(0.f, 0.f, 1.f);
