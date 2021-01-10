@@ -12,7 +12,7 @@ public:
 	virtual ~Primitive() = default;
 
 	void Set(const Vertex* vertices, const unsigned numOfVertices,
-	         const GLuint* indices, const unsigned  numOfIndices)
+		const GLuint* indices, const unsigned  numOfIndices)
 	{
 		for (unsigned i = 0; i < numOfVertices; ++i)
 		{
@@ -77,7 +77,7 @@ public:
 			//Position								   //Color							     //Texcoords					//Normals
 			{glm::vec3(-0.5f, -0.5f, 0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec2(0.f, 1.f), glm::vec3(0.f, 0.f, 1.f)},
 			{glm::vec3(0.5f, -0.5f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, 1.f)},
-			{glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 0.f, 1.f), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)},
+			{glm::vec3(0.f, 0.5f, 0.f), glm::vec3(0.f, 0.f, 1.f), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)}
 		};
 
 		const unsigned numOfVertices = sizeof(vertices) / sizeof(Vertex);
@@ -89,5 +89,39 @@ public:
 		const unsigned numOfIndices = sizeof(indices) / sizeof(GLuint);
 
 		Set(vertices, numOfVertices, indices, numOfIndices);
+	}
+};
+
+class Pyramid final : public Primitive
+{
+public:
+	Pyramid() : Primitive()
+	{
+		Vertex vertices[] =
+		{
+			// Front Triangle
+			{glm::vec3( 0.f,   0.5f,   0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec2(0.5f, 1.f), glm::vec3(0.f, 0.f, 1.f)},
+			{glm::vec3(-0.5f, -0.5f, 0.5f),  glm::vec3(0.f, 1.f, 0.f), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, 1.f)},
+			{glm::vec3( 0.5f, -0.5f, 0.5f),  glm::vec3(0.f, 0.f, 1.f), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)},
+
+			// Left Triangle
+			{glm::vec3( 0.f,   0.5f,   0.f), glm::vec3(1.f, 1.f, 0.f), glm::vec2(0.5f, 1.f), glm::vec3(-1.f, 0.f, 0.f) },
+			{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.f, 0.f, 1.f), glm::vec2(0.f, 0.f), glm::vec3(-1.f, 0.f, 0.f)},
+			{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.f, 0.f, 1.f), glm::vec2(1.f, 0.f), glm::vec3(-1.f, 0.f, 0.f)},
+
+			// Back Triangle
+			{glm::vec3( 0.f,   0.5f,  0.f),  glm::vec3(1.f, 1.f, 0.f), glm::vec2(0.5f, 1.f), glm::vec3(0.f, 0.f, -1.f) },
+			{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.f, 0.f, 1.f), glm::vec2(0.f, 0.f), glm::vec3(0.f, 0.f, -1.f)},
+			{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.f, 0.f, 1.f), glm::vec2(1.f, 0.f), glm::vec3(0.f, 0.f, -1.f)},
+
+			// Right Triangle
+			{glm::vec3( 0.f,   0.5f,  0.f),  glm::vec3(1.f, 1.f, 0.f), glm::vec2(0.5f, 1.f), glm::vec3(1.f, 0.f, 1.f)},
+			{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.f, 0.f, 1.f), glm::vec2(0.f, 0.f), glm::vec3(1.f, 0.f, 1.f)},
+			{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.f, 0.f, 1.f), glm::vec2(1.f, 0.f), glm::vec3(1.f, 0.f, 1.f)}
+		};
+
+		const unsigned numOfVertices = sizeof(vertices) / sizeof(Vertex);
+
+		Set(vertices, numOfVertices, nullptr, 0);
 	}
 };

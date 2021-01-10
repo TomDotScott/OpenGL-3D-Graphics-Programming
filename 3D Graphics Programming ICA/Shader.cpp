@@ -143,9 +143,6 @@ GLuint Shader::LoadShader(const GLenum type, const std::string& fileName) const
 		std::cout << infoLog << "\n";
 	}
 
-	std::cout << "\n\n\n" << fileName << "\n\n\n";
-	std::cout << src << std::endl;
-	
 	return shader;
 }
 

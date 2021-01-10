@@ -9,7 +9,7 @@
 
 enum class ePrimitiveType
 {
-	e_Quad, e_Tri
+	e_Quad, e_Triangle, e_Pyramid
 };
 
 class Mesh
@@ -22,8 +22,6 @@ public:
 	Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, ePrimitiveType type);
 	
 	~Mesh();
-
-	void Update();
 
 	void Render(Shader& shader);
 

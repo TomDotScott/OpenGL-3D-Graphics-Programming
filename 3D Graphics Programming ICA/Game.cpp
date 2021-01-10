@@ -203,7 +203,7 @@ void Game::InitMeshes()
 			glm::vec3(0.f),
 			glm::vec3(0.f),
 			glm::vec3(1.f),
-			ePrimitiveType::e_Quad
+			ePrimitiveType::e_Pyramid
 		)
 	);
 

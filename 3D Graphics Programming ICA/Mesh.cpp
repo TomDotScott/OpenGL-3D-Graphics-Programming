@@ -36,9 +36,11 @@ Mesh::Mesh(const glm::vec3&     position, const glm::vec3& rotation, const glm::
 		case ePrimitiveType::e_Quad:
 			primitive = new Quad();
 			break;
-		case ePrimitiveType::e_Tri: 
+		case ePrimitiveType::e_Triangle: 
 			primitive = new Triangle();
 			break;
+		case ePrimitiveType::e_Pyramid:
+			primitive = new Pyramid();
 		default: 
 			break;
 	}
@@ -60,8 +62,13 @@ Mesh::Mesh(const glm::vec3&     position, const glm::vec3& rotation, const glm::
 Mesh::~Mesh()
 {
 	glDeleteVertexArrays(1, &m_vao);
+	
 	glDeleteBuffers(1, &m_vbo);
-	glDeleteBuffers(1, &m_ebo);
+	
+	if (m_numIndices > 0)
+	{
+		glDeleteBuffers(1, &m_ebo);
+	}
 }
 
 void Mesh::Render(Shader& shader)
@@ -75,7 +82,13 @@ void Mesh::Render(Shader& shader)
 	shader.Use();
 
 	//Draw
-	glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, nullptr);
+	if (m_numIndices == 0)
+	{
+		glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
+	} else
+	{
+		glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, nullptr);
+	}
 
 	shader.Unuse();
 }
@@ -121,10 +134,14 @@ void Mesh::InitialiseBuffers(Vertex* vertexArray, GLuint* indexArray)
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, m_numVertices * sizeof(Vertex), vertexArray, GL_STATIC_DRAW);
 
-	//GEN EBO AND BIND AND SEND DATA
-	glGenBuffers(1, &m_ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_numIndices * sizeof(GLuint), indexArray, GL_STATIC_DRAW);
+	// We only want to generate an elements array if there are indices passed in...
+	if (m_numIndices > 0)
+	{
+		//GEN EBO AND BIND AND SEND DATA
+		glGenBuffers(1, &m_ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_numIndices * sizeof(GLuint), indexArray, GL_STATIC_DRAW);
+	}
 
 	//SET VERTEXATTRIBPOINTERS AND ENABLE (INPUT ASSEMBLY)
 	//Position
@@ -162,10 +179,13 @@ void Mesh::InitialiseBuffers(Primitive& primitive)
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, m_numVertices * sizeof(Vertex), primitive.GetVertices().data(), GL_STATIC_DRAW);
 
-	//GEN EBO AND BIND AND SEND DATA
-	glGenBuffers(1, &m_ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_numIndices * sizeof(GLuint), primitive.GetIndices().data(), GL_STATIC_DRAW);
+	if (m_numIndices > 0)
+	{
+		//GEN EBO AND BIND AND SEND DATA
+		glGenBuffers(1, &m_ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_numIndices * sizeof(GLuint), primitive.GetIndices().data(), GL_STATIC_DRAW);
+	}
 
 	//SET VERTEXATTRIBPOINTERS AND ENABLE (INPUT ASSEMBLY)
 	//Position
