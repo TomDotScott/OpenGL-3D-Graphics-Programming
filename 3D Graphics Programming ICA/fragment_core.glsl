@@ -39,7 +39,7 @@ vec3 calculate_specular_colour(Material mat, vec3 position, vec3 normal, vec3 li
 	vec3 reflectionDirectionVector = normalize(reflect(lightToPositionDirectionVector, normalize(normal)));
 	vec3 positionToViewDirectionVector = normalize(cameraPos - position);
 	float specularConstant = pow(max(dot(positionToViewDirectionVector, reflectionDirectionVector), 0), 30);
-	return material.specular * specularConstant;
+	return material.specular * specularConstant * texture(material.specular_tex, varying_texcoord).rgb;
 }
 
 void main()
@@ -48,6 +48,6 @@ void main()
 	vec3 diffuseFinal = calculate_diffuse_colour(material, varying_position, varying_normal, light_position);
 	vec3 specularFinal = calculate_specular_colour(material, varying_position, varying_normal, light_position, camera_position);
 
-//	fragment_colour = texture(material.diffuse_tex, varying_texcoord) * vec4(varying_colour, 1.f) * (vec4(ambientLight, 1.f) + vec4(diffuseFinal, 1.f) + vec4(specularFinal, 1.f));
+//	MAKES IT RAINBOW - fragment_colour = texture(material.diffuse_tex, varying_texcoord) * vec4(varying_colour, 1.f) * (vec4(ambientLight, 1.f) + vec4(diffuseFinal, 1.f) + vec4(specularFinal, 1.f));
 	fragment_colour = texture(material.diffuse_tex, varying_texcoord) * (vec4(ambientFinal, 1.f) + vec4(diffuseFinal, 1.f) + vec4(specularFinal, 1.f));
 }

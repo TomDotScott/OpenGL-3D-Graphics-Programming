@@ -5,17 +5,15 @@
 class Texture
 {
 public:
-	Texture(const std::string& fileName, const GLenum type, const GLint textureUnit);
+	Texture(const std::string& fileName, const GLenum type);
 
 	~Texture();
 
 	inline GLuint GetID() const;
 
-	void Bind() const;
+	void Bind(GLint textureUnit) const;
 
 	void Unbind() const;
-
-	inline GLint GetTextureUnit() const { return m_textureUnit; }
 
 	void LoadFromFile(const std::string& fileName);
 
@@ -24,5 +22,4 @@ private:
 	int m_width;
 	int m_height;
 	unsigned int m_type;
-	GLint m_textureUnit;
 };

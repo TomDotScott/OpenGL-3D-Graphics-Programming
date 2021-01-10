@@ -9,7 +9,7 @@
 #include "Texture.h"
 
 enum class eShaders { CORE_PROGRAM = 0 };
-enum class eTextures { ALIEN = 0, BOX = 1 };
+enum class eTextures { ALIEN, ALIEN_SPECULAR, BOX, BOX_SPECULAR };
 enum class eMaterials { ALIEN_MATERIAL = 0 };
 enum class eMeshes { ALIEN = 0 };
 enum class eLights { MAIN_LIGHT = 0 };

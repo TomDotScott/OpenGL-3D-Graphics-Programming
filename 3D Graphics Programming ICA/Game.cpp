@@ -88,11 +88,13 @@ void Game::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	UpdateUniforms();
-
+	
+	m_materials[static_cast<int>(eMaterials::ALIEN_MATERIAL)]->SendToShader(*m_shaders[static_cast<int>(eShaders::CORE_PROGRAM)]);
+	
 	m_shaders[static_cast<int>(eShaders::CORE_PROGRAM)]->Use();
 
-	m_textures[static_cast<int>(eTextures::ALIEN)]->Bind();
-	m_textures[static_cast<int>(eTextures::BOX)]->Bind();
+	m_textures[static_cast<int>(eTextures::BOX)]->Bind(0);
+	m_textures[static_cast<int>(eTextures::BOX_SPECULAR)]->Bind(1);
 
 	m_meshes[static_cast<int>(eMeshes::ALIEN)]->Render(*m_shaders[static_cast<int>(eShaders::CORE_PROGRAM)]);
 
@@ -182,9 +184,10 @@ void Game::InitShaders()
 
 void Game::InitTextures()
 {
-	m_textures.push_back(new Texture("Data/alien.png", GL_TEXTURE_2D, static_cast<int>(eTextures::ALIEN)));
-
-	m_textures.push_back(new Texture("Data/box.png", GL_TEXTURE_2D, static_cast<int>(eTextures::BOX)));
+	m_textures.push_back(new Texture("Data/alien.png", GL_TEXTURE_2D));
+	m_textures.push_back(new Texture("Data/alien_specular.png", GL_TEXTURE_2D));
+	m_textures.push_back(new Texture("Data/box.png", GL_TEXTURE_2D));
+	m_textures.push_back(new Texture("Data/box_specular.png", GL_TEXTURE_2D));
 }
 
 void Game::InitMaterials()
@@ -230,9 +233,6 @@ void Game::InitUniforms()
 
 void Game::UpdateUniforms()
 {
-	//Update uniforms
-	m_materials[static_cast<int>(eMaterials::ALIEN_MATERIAL)]->SendToShader(*m_shaders[static_cast<int>(eShaders::CORE_PROGRAM)]);
-
 	glfwGetFramebufferSize(m_window, &m_frameBufferWidth, &m_frameBufferHeight);
 
 	m_projectionMatrix = glm::perspective(

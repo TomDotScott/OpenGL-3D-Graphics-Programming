@@ -91,7 +91,7 @@ void Shader::SetMat3Fv(glm::mat3 value, const std::string& name, const GLboolean
 	Unuse();
 }
 
-void Shader::SetMat4Fv(glm::mat4 value, const std::string& name, GLboolean transpose)
+void Shader::SetMat4Fv(glm::mat4 value, const std::string& name, const GLboolean transpose)
 {
 	Use();
 
@@ -143,6 +143,9 @@ GLuint Shader::LoadShader(const GLenum type, const std::string& fileName) const
 		std::cout << infoLog << "\n";
 	}
 
+	std::cout << "\n\n\n" << fileName << "\n\n\n";
+	std::cout << src << std::endl;
+	
 	return shader;
 }
 
