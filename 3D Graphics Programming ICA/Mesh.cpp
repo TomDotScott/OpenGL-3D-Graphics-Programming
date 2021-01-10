@@ -16,11 +16,11 @@ Mesh::Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3
 	InitialiseBuffers(vertexArray, indexArray);
 }
 
-Mesh::Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, 
-	Primitive& primitive)
+Mesh::Mesh(const glm::vec3&     position, const glm::vec3& rotation, const glm::vec3& scale,
+           const ePrimitiveType type)
 :
-	m_numVertices(primitive.GetVertices().size()),
-	m_numIndices(primitive.GetIndices().size()),
+	m_numVertices(0),
+	m_numIndices(0),
 	m_vao(0),
 	m_vbo(0),
 	m_ebo(0),
@@ -29,7 +29,32 @@ Mesh::Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3
 	m_scale(scale),
 	m_modelMatrix(glm::mat4(1.f))
 {
-	InitialiseBuffers(primitive);
+	Primitive* primitive = nullptr;
+	
+	switch (type)
+	{
+		case ePrimitiveType::e_Quad:
+			primitive = new Quad();
+			break;
+		case ePrimitiveType::e_Tri: 
+			primitive = new Triangle();
+			break;
+		default: 
+			break;
+	}
+
+	if (primitive)
+	{
+		InitialiseBuffers(*primitive);
+
+		m_numVertices = primitive->GetVertices().size();
+		m_numIndices = primitive->GetIndices().size();
+	}else
+	{
+		std::cout << "Error creating primitive. Check type" << std::endl;
+	}
+	
+	delete primitive;
 }
 
 Mesh::~Mesh()

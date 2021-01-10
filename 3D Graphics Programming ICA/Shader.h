@@ -3,7 +3,6 @@
 #include<iostream>
 #include<string>
 
-
 #include <gl/glew.h>
 #include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -11,12 +10,15 @@
 class Shader
 {
 public:
-	//Constructors/Destructors
-	Shader(const std::string& vertexFile, const std::string& fragmentFile, const std::string& geometryFile = "");
+	Shader(const int glVersionMajor, 
+		const int glVersionMinor, 
+		const std::string& vertexFile, 
+		const std::string& fragmentFile, 
+		const std::string& geometryFile = ""
+	);
 
 	~Shader();
-
-	//Set uniform functions
+	
 	void Use();
 
 	void Unuse();
@@ -36,13 +38,11 @@ public:
 	void SetMat4Fv(glm::mat4 value, const std::string& name, GLboolean transpose = GL_FALSE);
 
 private:
-	//Member variables
 	GLuint m_ID;
+	const int m_glVersionMajor;
+	const int m_glVersionMinor;
 
-	//Private functions
 	std::string LoadShaderSource(const std::string& fileName) const;
-
 	GLuint LoadShader(GLenum type, const std::string& fileName) const;
-
 	void LinkProgram(GLuint vertexShader, GLuint geometryShader, GLuint fragmentShader);
 };

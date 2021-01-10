@@ -1,5 +1,9 @@
 #include "Shader.h"
-Shader::Shader(const std::string& vertexFile, const std::string& fragmentFile, const std::string& geometryFile)
+Shader::Shader(const int glVersionMajor, const int glVersionMinor,
+	const std::string& vertexFile, const std::string& fragmentFile, const std::string& geometryFile)
+	:
+	m_glVersionMajor(glVersionMajor),
+	m_glVersionMinor(glVersionMinor)
 {
 	GLuint geometryShader = 0;
 
@@ -10,7 +14,7 @@ Shader::Shader(const std::string& vertexFile, const std::string& fragmentFile, c
 
 	const GLuint fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentFile);
 
-	this->LinkProgram(vertexShader, geometryShader, fragmentShader);
+	LinkProgram(vertexShader, geometryShader, fragmentShader);
 
 	//End
 	glDeleteShader(vertexShader);
@@ -25,7 +29,7 @@ Shader::~Shader()
 
 void Shader::Use()
 {
-	glUseProgram(this->m_ID);
+	glUseProgram(m_ID);
 }
 
 void Shader::Unuse()
@@ -33,7 +37,8 @@ void Shader::Unuse()
 	glUseProgram(0);
 }
 
-void Shader::Set1I(const GLint value, const std::string& name) {
+void Shader::Set1I(const GLint value, const std::string& name)
+{
 	Use();
 
 	glUniform1i(glGetUniformLocation(m_ID, name.c_str()), value);

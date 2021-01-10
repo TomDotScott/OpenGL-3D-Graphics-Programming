@@ -7,6 +7,11 @@
 #include "Primitives.h"
 #include "Shader.h"
 
+enum class ePrimitiveType
+{
+	e_Quad, e_Tri
+};
+
 class Mesh
 {
 public:
@@ -14,7 +19,7 @@ public:
 		Vertex* vertexArray, const unsigned& numOfVertices,
 		GLuint* indexArray, const unsigned& numOfIndices);
 
-	Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, Primitive& primitive);
+	Mesh(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, ePrimitiveType type);
 	
 	~Mesh();
 
