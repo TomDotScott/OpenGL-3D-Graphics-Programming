@@ -4,6 +4,8 @@
 #include <glm/vec3.hpp>
 #include <glm/matrix.hpp>
 
+
+#include "Camera.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "Texture.h"
@@ -45,11 +47,20 @@ private:
 	const int m_glVersionMajor;
 	const int m_glVersionMinor;
 
-	// TODO: MAKE A CAMERA CLASS TO CONTAIN THIS DATA
-	glm::mat4 m_viewMatrix;
-	glm::vec3 m_camPosition;
-	glm::vec3 m_worldUp;
-	glm::vec3 m_camFront;
+	float m_deltaTime;
+	float m_currentFrameTime;
+	float m_prevFrameTime;
+
+	double m_prevMouseX;
+	double m_prevMouseY;
+	double m_currentMouseX;
+	double m_currentMouseY;
+	double m_mouseOffsetX;
+	double m_mouseOffsetY;
+	bool m_firstMouse;
+	
+	Camera m_camera;
+	eDirection m_cameraDirection;
 
 	glm::mat4 m_projectionMatrix;
 	float m_fov;
@@ -74,6 +85,9 @@ private:
 	void InitLights();
 	void InitUniforms();
 
+	void UpdateDeltaTime();
 	void UpdateUniforms();
 	void UpdateInput();
+	void KeyBoardInput();
+	void MouseInput();
 };
