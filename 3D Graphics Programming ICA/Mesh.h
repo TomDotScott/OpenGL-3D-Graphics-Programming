@@ -9,7 +9,7 @@
 
 enum class ePrimitiveType
 {
-	e_Quad, e_Triangle, e_Pyramid
+	e_Quad, e_Triangle, e_Pyramid, e_Cube
 };
 
 class Mesh

@@ -41,6 +41,10 @@ Mesh::Mesh(const glm::vec3&     position, const glm::vec3& rotation, const glm::
 			break;
 		case ePrimitiveType::e_Pyramid:
 			primitive = new Pyramid();
+			break;
+		case ePrimitiveType::e_Cube:
+			primitive = new Cube();
+			break;
 		default: 
 			break;
 	}
